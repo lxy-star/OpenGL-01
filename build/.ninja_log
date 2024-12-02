@@ -1,0 +1,9 @@
+# ninja log v6
+105	1397	7548286187407865	CMakeFiles/01_openGL.dir/src/glad.c.obj	3fee9c2bc6d9d142
+1398	2329	7548286200331502	01_openGL.exe	bc10d84dd0863d55
+2	754	7548286186374127	CMakeFiles/01_openGL.dir/src/main.cpp.obj	be70f78e5ef30db3
+2	915	7548290080488450	build.ninja	3a6e33453c950bfd
+6	121	7548290008211021	clean	61058d370a83cbc5
+5	756	7548290247952391	CMakeFiles/01_openGL.dir/src/main.cpp.obj	be70f78e5ef30db3
+130	1431	7548290249188072	CMakeFiles/01_openGL.dir/src/glad.c.obj	3fee9c2bc6d9d142
+1431	2319	7548290262187727	bin/01_openGL.exe	12e76c855caa7047
