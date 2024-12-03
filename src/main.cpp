@@ -1,6 +1,7 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "checkerror.h"
 
 int main()
 {
@@ -81,20 +82,19 @@ int main()
     }
 
     //设置openGL视口和清理颜色
-    glViewport(0,0,800,600);
-    glClearColor(0.2f,0.3f,0.2f,1.0f);
+    GL_CALL(glViewport(0,0,800,600));
+    GL_CALL(glClearColor(0.2f,0.3f,0.2f,1.0f));
 
     // 4 执行窗体循环
     while (!glfwWindowShouldClose(window))
     {
-        glfwPollEvents();
+        GL_CALL(glfwPollEvents());
         //执行画布清理
-        glClear(GL_COLOR_BUFFER_BIT);
-
+        GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
         //渲染操作
 
         //切换双缓存
-        glfwSwapBuffers(window);
+        GL_CALL(glfwSwapBuffers(window));
     }
 
     // 5 退出程序前做相关清理

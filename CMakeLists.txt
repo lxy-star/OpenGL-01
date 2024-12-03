@@ -40,6 +40,11 @@ target_link_libraries(01_openGL PRIVATE
     advapi32
 )
 
+# # 添加预编译宏定义（全局）
+# add_definitions(-DDEBUG)
+# 添加预编译宏定义
+target_compile_definitions(01_openGL PRIVATE DEBUG)
+
 # 设置特定目标的输出目录
 set_target_properties(01_openGL PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
