@@ -2,39 +2,23 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "checkerror.h"
+#include "application.h"
 
 int main()
 {
-    // 1 初始化GLFW基本环境
-    //  初始化 GLFW
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
-        return -1;
-    }
-    // 1.1设置OpenGL的主版本号、次版本号（跟你的glad报持一致）
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    // 1.2设置opengl中的核心配置(是核心模式还是立即渲染模式)(跟你的glad报持一致)
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    app->test();
 
-    // 2 创建窗体对象
-    GLFWwindow *window = glfwCreateWindow(800, 600, "OpenGLStudy", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cerr << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
+//1 执行GLFW窗口初始化
+    if(!app->init()){
         return -1;
     }
-    // 设置当前窗体对象为OpenGL的绘制舞台
-    glfwMakeContextCurrent(window);
-    //设置监听监听窗口大小的变化的消息
-    glfwSetFramebufferSizeCallback(window,[](GLFWwindow* window,int width,int height){
+
+    app->setFramebufferSizeCallback([](GLFWwindow* window,int width,int height){
         std::cout << "the new window size is" << width << ',' << height << std::endl;
-        glViewport(0,0,width,height);
+        GL_CALL(glViewport(0,0,width,height));
     });
-    //设置监听按键事件是否被触发(key是字母按键码,scancode:物理按键码,action:是按下还是抬起,mods是shift还是control)
-    glfwSetKeyCallback(window,[](GLFWwindow *window,int key, int scancode, int action, int mods){
+
+    app->setKeyCallback([](GLFWwindow *window,int key, int scancode, int action, int mods){
     // 打印按键信息
     std::cout << "press: " << key << ", scancode: " << scancode 
               << ", action: " << action << ", mods: " << mods << std::endl;
@@ -74,31 +58,26 @@ int main()
     }
     });
 
-    // 3 初始化 GLAD
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+//2 初始化 GLAD(查询显卡驱动)
+if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cerr << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        return false;
     }
-
-    //设置openGL视口和清理颜色
+    //2.1 设置openGL视口和清理颜色(调用显卡驱动)
     GL_CALL(glViewport(0,0,800,600));
     GL_CALL(glClearColor(0.2f,0.3f,0.2f,1.0f));
 
-    // 4 执行窗体循环
-    while (!glfwWindowShouldClose(window))
+//3 执行窗体循环
+    //3.1 执行窗口逻辑和双缓冲交换
+    while (app->update())
     {
-        GL_CALL(glfwPollEvents());
-        //执行画布清理
+        //3.2 执行openGL画布清理(调用显卡驱动)
         GL_CALL(glClear(GL_COLOR_BUFFER_BIT));
-        //渲染操作
-
-        //切换双缓存
-        GL_CALL(glfwSwapBuffers(window));
     }
 
-    // 5 退出程序前做相关清理
-    glfwTerminate();
+    //4 执行窗口context的回收
+    app->destory();
 
     std::cout << "Hello OpenGL!" << std::endl;
     // 等待用户输入
