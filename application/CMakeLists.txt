@@ -1,9 +1,20 @@
 cmake_minimum_required(VERSION 3.10)
 project(application)
 
+# 设置构建类型为 Debug（如果未指定）
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 添加编译选项以包含调试信息，并禁用优化（仅限Debug模式）
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    target_compile_options(01_openGL PRIVATE -g)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+endif()
 
 # 查找源文件
 file(GLOB_RECURSE SOURCES "*.cpp")

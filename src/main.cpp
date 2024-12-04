@@ -4,6 +4,117 @@
 #include "checkerror.h"
 #include "application.h"
 
+//创建VBO，顶点缓存对象
+void prepareVBO(){
+    //创建一个VBO vertex buffer object 描述符,GPU显存还没有分配
+    GLuint VBO = 1;
+    GL_CALL(glGenBuffers(1,&VBO));
+    //销毁一个VBO描述符
+    GL_CALL(glDeleteBuffers(1,&VBO));
+    //创建多个VBO 描述符
+    GLuint VBOArray[] = {0,0,0};
+    GL_CALL(glGenBuffers(3,VBOArray));
+    //销毁多个VBO描述符
+    GL_CALL(glDeleteBuffers(3,VBOArray));
+}
+
+
+void prepare(){
+    float vertices[] ={
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f, 0.5f, 0.0f
+    };
+
+    //生成一个VBO
+    GLuint VBO = 0;
+    GL_CALL(glGenBuffers(1,&VBO));
+
+    //绑定当前VBO到OpenGL状态机插槽
+    //GL_ARRAY_BUFFER表示状态机的VBO插槽
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,VBO));
+
+    //向当前openGL插槽GL_ARRAY_BUFFER（也即对VBO）传递数据也是开辟显存空间
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW));
+}
+
+void prepareSingleBuffer(){
+    float position[] = {
+        -0.5f,-0.5f,0.0f,
+        0.5f,-0.5f,0.0f,
+        0.0f,0.5f,0.0f
+    };
+    float colors[] = {
+        1.0f,0.0f,0.0f,
+        0.0f,1.0f,0.0f,
+        0.0f,0.0f,1.0f
+    };
+
+    //生成posVbo,colorVbo
+    GLuint posVbo = 0,colorVbo = 0;
+    GL_CALL(glGenBuffers(1,&posVbo));
+    GL_CALL(glGenBuffers(1,&colorVbo));
+
+    //绑定到OpenGL状态机的插槽后填充数据
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,posVbo));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER,sizeof(position),position,GL_STATIC_DRAW));
+
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,colorVbo));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER,sizeof(colors),colors,GL_STATIC_DRAW));
+
+    //生成VAO，并绑定到OpenGL状态机
+    GLuint vao = 0;
+    GL_CALL(glGenVertexArrays(1,&vao));
+    GL_CALL(glBindVertexArray(vao));
+
+    //将位置和颜色的信息描述加入VAO中
+    //先绑定VBO，才能把VAO的描述与此VBO相关联
+    //1描述位置信息
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,posVbo));
+    GL_CALL(glEnableVertexAttribArray(0));
+    GL_CALL(glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0));
+    //2描述颜色信息
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,colorVbo));
+    GL_CALL(glEnableVertexAttribArray(1));
+    GL_CALL(glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0));
+
+    //解绑VBO,VAO
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GL_CALL(glBindVertexArray(0));
+}
+
+void prepareInterleavedBuffer(){
+    float vertices[] = {
+        -0.5f,-0.5f,0.0f,1.0f,0.0f,0.0f,
+        0.5f,-0.5f,0.0f,0.0f,1.0f,0.0f,
+        0.0f,0.5f,0.0f,0.0f,0.0f,1.0f
+    };
+
+    GLuint vbo = 0;
+    GL_CALL(glGenBuffers(1,&vbo));
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,vbo));
+    GL_CALL(glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW));
+
+    //创建VAO
+    GLuint vao = 0;
+    GL_CALL(glGenVertexArrays(1,&vao));
+    GL_CALL(glBindVertexArray(vao));
+
+    //绑定VBO
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,vbo));
+    //为位置添加VAO描述信息
+    GL_CALL(glEnableVertexAttribArray(0));
+    GL_CALL(glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)0));
+
+    //为颜色添加VAO描述信息
+    GL_CALL(glEnableVertexAttribArray(1));
+    GL_CALL(glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)(3*sizeof(float))));
+
+    //解除VBO,VAO绑定
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,0));
+    GL_CALL(glBindVertexArray(0));
+}
+
 int main()
 {
     app->test();
@@ -64,6 +175,9 @@ if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return false;
     }
+    
+    prepareInterleavedBuffer();
+
     //2.1 设置openGL视口和清理颜色(调用显卡驱动)
     GL_CALL(glViewport(0,0,800,600));
     GL_CALL(glClearColor(0.2f,0.3f,0.2f,1.0f));
