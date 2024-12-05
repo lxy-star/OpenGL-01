@@ -25,19 +25,45 @@ void prepare(){
     float vertices[] ={
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
-        0.0f, 0.5f, 0.0f
+        0.0f, 0.5f, 0.0f,
+        0.5f,0.5f,0.0f
+    };
+
+    unsigned int indicates[]={
+        0,1,2,
+        2,1,3
     };
 
     //生成一个VBO
-    GLuint VBO = 0;
-    GL_CALL(glGenBuffers(1,&VBO));
+    GLuint vbo = 0;
+    GL_CALL(glGenBuffers(1,&vbo));
 
     //绑定当前VBO到OpenGL状态机插槽
     //GL_ARRAY_BUFFER表示状态机的VBO插槽
-    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,VBO));
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,vbo));
 
     //向当前openGL插槽GL_ARRAY_BUFFER（也即对VBO）传递数据也是开辟显存空间
     GL_CALL(glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW));
+
+    //生成一个EBO
+    GLuint ebo = 0;
+    GL_CALL(glGenBuffers(1,&ebo));
+    GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo));
+    GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indicates),indicates,GL_STATIC_DRAW));
+
+    //生成VAO
+    GL_CALL(glGenVertexArrays(1,&vao));
+    GL_CALL(glBindVertexArray(vao));
+
+    //绑定VAO到对应的VBO和EBO
+    GL_CALL(glBindBuffer(GL_ARRAY_BUFFER,vbo));
+    GL_CALL(glEnableVertexAttribArray(0));
+    GL_CALL(glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0));
+
+    GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ebo));
+
+    //解绑vao
+    GL_CALL(glBindVertexArray(0));
 }
 
 void prepareSharder(){
@@ -231,7 +257,10 @@ void render(){
     // GL_CALL(glDrawArrays(GL_TRIANGLE_STRIP,0,6));
     // GL_CALL(glDrawArrays(GL_TRIANGLE_FAN,0,6));
     // GL_CALL(glDrawArrays(GL_LINES,0,6));
-    GL_CALL(glDrawArrays(GL_LINE_STRIP,0,6));
+    // GL_CALL(glDrawArrays(GL_LINE_STRIP,0,6));
+    // GL_CALL(glDrawElements(GL_TRIANGLES,6,GL_UNSIGNED_INT,0));
+    // GL_CALL(glDrawElements(GL_TRIANGLES,3,GL_UNSIGNED_INT,0));
+    GL_CALL(glDrawElements(GL_TRIANGLES,3,GL_UNSIGNED_INT,(void*)(3*sizeof(int))));//用3的索引且偏移为3
 }
 
 int main()
@@ -298,7 +327,8 @@ if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     //先加载Shader程序，其次加载VBO,VAO，理解为用Shader读VAO处理VBO
     prepareSharder();
     // prepareInterleavedBuffer();
-    prepareFourTriangles();
+    // prepareFourTriangles();
+    prepare();
 
     //2.1 设置openGL视口和清理颜色(调用显卡驱动)
     GL_CALL(glViewport(0,0,800,600));
