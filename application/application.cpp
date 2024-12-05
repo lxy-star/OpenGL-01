@@ -60,10 +60,8 @@ bool Application::init(const int &width,const int &height,const std::string &nam
 bool Application::update(){
 //3 执行窗体逻辑更新
     if(!glfwWindowShouldClose(mWindow)){
-        //执行openGL画布清理
+        //等待事件响应
         glfwPollEvents();
-
-        //渲染操作
 
         //切换双缓存
         glfwSwapBuffers(mWindow);
